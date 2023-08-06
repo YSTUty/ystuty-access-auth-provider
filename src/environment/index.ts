@@ -21,3 +21,5 @@ export const APP_DOMAIN: string = process.env.MAIN_DOMAIN || '127.0.0.1';
 export const SERVER_PORT: number = +process.env.SERVER_PORT || 8080;
 export const SERVER_URL: string =
   process.env.SERVER_URL || `http://${APP_DOMAIN}:${SERVER_PORT}`;
+
+export const WPROG_URL: string = process.env.WPROG_URL;
