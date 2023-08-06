@@ -1,12 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { RealIP } from 'nestjs-real-ip';
 
-@Controller()
+@Controller('/app')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  public readonly timeStart = Date.now();
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('ip')
+  getIp(@RealIP() ip: string) {
+    return { ip };
+  }
+
+  @Get('uptime')
+  getTime() {
+    return { uptime: Date.now() - this.timeStart };
   }
 }
