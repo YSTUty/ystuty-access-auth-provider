@@ -5,7 +5,7 @@ services:
     hostname: ystuty-access-auth-provider
     build:
       context: .
-      target: base
+      target: production
       dockerfile: ./Dockerfile
     command: yarn start:prod
     ports:
