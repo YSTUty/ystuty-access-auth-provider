@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { AuthMicroserviceController } from './auth-microservice.controller';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
@@ -10,7 +11,7 @@ const strategies = [LocalStrategy];
 
 @Module({
   imports: [ProviderModule],
-  controllers: [AuthController],
+  controllers: [AuthController, AuthMicroserviceController],
   providers: [AuthService, ...strategies],
 })
 export class AuthModule {}

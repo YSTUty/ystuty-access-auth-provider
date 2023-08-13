@@ -5,12 +5,13 @@ import {
   ArgumentsHost,
   HttpException,
 } from '@nestjs/common';
+import * as rxjs from 'rxjs';
 import { Response } from 'express';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
-    if (host.getType() !== 'http') {
+    if (host.getType() !== 'http' && host.getType() !== 'rpc') {
       return exception;
     }
 
@@ -21,25 +22,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const expResponse = exception.getResponse() as string | any;
     const { message } = exception;
 
-    let error: string;
+    let errorName: string;
     let payload: any;
     let validation: any;
     if (typeof expResponse !== 'string') {
       payload = expResponse.payload;
       validation = expResponse.validation;
-      error ??= expResponse.error;
+      errorName ??= expResponse.error;
     }
-    error ??= exception.name;
+    errorName ??= exception.name;
 
-    response.status(code).json({
-      error: {
-        code,
-        message,
-        error,
-        timestamp: new Date().toISOString(),
-        payload,
-        validation,
-      },
-    });
+    const error = {
+      code,
+      message,
+      error: errorName,
+      timestamp: new Date().toISOString(),
+      payload,
+      validation,
+    };
+
+    if (host.getType() === 'rpc') {
+      return rxjs.throwError(() => error);
+    }
+
+    response.status(code).json({ error });
   }
 }

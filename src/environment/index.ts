@@ -22,4 +22,9 @@ export const SERVER_PORT: number = +process.env.SERVER_PORT || 8080;
 export const SERVER_URL: string =
   process.env.SERVER_URL || `http://${APP_DOMAIN}:${SERVER_PORT}`;
 
+// Microservices
+export const SERVER_MS_PORT: number = +process.env.SERVER_MS_PORT || 3000;
+export const SERVER_MS_HOST: string =
+  process.env.SERVER_MS_HOST || 'ms_auth_provider';
+
 export const WPROG_URL: string = process.env.WPROG_URL;
