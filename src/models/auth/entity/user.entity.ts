@@ -17,7 +17,7 @@ export class UserEntity {
   @Expose()
   public patronymic: string;
 
-  @Expose()
+  // @Expose()
   public password: string;
 
   @Expose()
