@@ -11,6 +11,7 @@ services:
     ports:
       # 8080 is the default port
       - ${EXTERNAL_PORT:-7471}:${SERVER_PORT:-8080}
+      - ${EXTERNAL_MS_PORT:-7481}:${SERVER_MS_PORT:-3000}
     networks:
       - ystuty-access-network
     volumes:
