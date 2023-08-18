@@ -9,7 +9,7 @@ RUN jq '{ dependencies, devDependencies, peerDependencies, license, scripts: (.s
 # Keep `postinstall` script
 
 ##
-# [container] deps
+# [container] Package deps
 ##
 FROM node:16-alpine AS deps
 
@@ -29,6 +29,9 @@ RUN yarn install --pure-lockfile; \
 FROM node:16-alpine AS base
 
 WORKDIR /home/node/app
+
+# Install dependencies via apk
+RUN apk --update --no-cache add curl
 
 COPY --from=deps /deps/node_modules ./node_modules
 
