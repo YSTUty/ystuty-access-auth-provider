@@ -53,6 +53,7 @@ export class UserEntity {
   //   };
   // }
 
+  @Expose()
   public get fullName() {
     return (
       [this.lastName, this.firstName, this.patronymic]
@@ -62,6 +63,7 @@ export class UserEntity {
     );
   }
 
+  @Expose()
   public get initials() {
     const firstName = this.firstName && `${this.firstName.slice(0, 1)}.`;
     const patronymic = this.patronymic && `${this.patronymic.slice(0, 1)}.`;
