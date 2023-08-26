@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import * as chTableParser from 'cheerio-tableparser';
 
-export const geUserInfo = (html: string) => {
+export const getUserInfo = (html: string) => {
   const $ = cheerio.load(html);
   chTableParser($);
 
@@ -63,5 +63,33 @@ export const geUserInfo = (html: string) => {
     avatar_url,
     login,
     group,
+  };
+};
+
+export const getCodeYSTU = (html: string) => {
+  const $ = cheerio.load(html);
+  const codeYSTU = $('input[name="codeYSTU"]').val();
+  return codeYSTU || null;
+};
+
+export const getRestoreData = (html: string) => {
+  const $ = cheerio.load(html);
+
+  const fullName = $('font').contents().eq(1).text().trim();
+  const login = $('b').text().trim();
+  const password = $('font')
+    .contents()
+    .eq(7)
+    .text()
+    .trim()
+    .split(':')[1]
+    .trim();
+  const email = $('font').contents().eq(11).text().trim();
+
+  return {
+    fullName,
+    login,
+    password,
+    email,
   };
 };

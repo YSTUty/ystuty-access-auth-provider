@@ -10,6 +10,7 @@ import { HttpExceptionFilter } from '@my-common';
 
 import { AuthService } from './auth.service';
 import { PayloadAuthValidateUserDto } from './dto/payload-auth-validate.dto';
+import { PayloadAuthRestoreDto } from './dto/payload-auth-restore.dto';
 
 @Controller()
 @UseFilters(HttpExceptionFilter)
@@ -28,6 +29,20 @@ export class AuthMicroserviceController {
       throw new BadRequestException('Invalid username or password');
     }
     const response = await this.authService.authUser(user);
+    return response;
+  }
+
+  @MessagePattern({ method: 'restore' }, Transport.TCP)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async restore(@Payload() payload: PayloadAuthRestoreDto) {
+    const response = await this.authService.restoreAuth(
+      payload.cardNumber,
+      payload.passportNumber,
+    );
+
+    if (!response) {
+      throw new BadRequestException('Invalid confirm data');
+    }
     return response;
   }
 }

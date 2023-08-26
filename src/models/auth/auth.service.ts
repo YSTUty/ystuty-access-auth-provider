@@ -38,6 +38,23 @@ export class AuthService {
     return user;
   }
 
+  public async restoreAuth(cardNumber: string, passportNumber: string) {
+    try {
+      const response = await this.providerService.restore(
+        cardNumber,
+        passportNumber,
+      );
+
+      return response;
+    } catch (err) {
+      if ((err as Error).message.startsWith('Wrong login:password')) {
+        throw new UnauthorizedException('Wrong confirm data');
+      }
+      this.logger.error(err);
+    }
+    return null;
+  }
+
   public async authUser(user: UserEntity) {
     // ? return access token
     return new AuthUserResponseDto({ user });

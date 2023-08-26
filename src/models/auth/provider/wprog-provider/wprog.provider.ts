@@ -8,7 +8,9 @@ import { FormData } from 'formdata-node';
 import { FormDataEncoder } from 'form-data-encoder';
 
 import * as xEnv from '@my-environment';
-import { md5 } from '@my-common';
+import { convert_to_cp1251, md5 } from '@my-common';
+
+import { getCodeYSTU } from './cherrio.parser';
 
 const hasLogin1 = 'input type="submit" name="login1"'.toLowerCase();
 
@@ -25,7 +27,9 @@ export class WprogProvider {
 
     httpService.axiosRef.interceptors.response.use(async (response) => {
       if (
-        response.config.url.toLowerCase().startsWith('auth1.php'.toLowerCase())
+        ['auth1.php', 'auth_p1.php'].some((e) =>
+          response.config.url.toLowerCase().startsWith(e.toLowerCase()),
+        )
       ) {
         response.data = (response.data as Buffer).toString('utf8');
       } else {
@@ -142,6 +146,8 @@ export class WprogProvider {
         const encoder = new FormDataEncoder(postData);
         axiosConfig.headers['content-type'] = encoder.contentType;
         axiosConfig.data = Readable.from(encoder.encode());
+      } else if (typeof postData === 'string') {
+        axiosConfig.data = postData;
       } else {
         const params = new URLSearchParams(postData);
         axiosConfig.data = params.toString();
@@ -251,5 +257,52 @@ export class WprogProvider {
     }
 
     return lkstudResponse.data as string;
+  }
+
+  public async startRestore(cardNumber: string, passportNumber: string) {
+    if (cardNumber.length < 7 || passportNumber.length < 6) {
+      return false;
+    }
+
+    const authString = `${cardNumber}:${md5(cardNumber + passportNumber)}`;
+
+    const testResponse = await this.fetch('auth.php', {
+      authString,
+      method: 'GET',
+      useReauth: false,
+    });
+    const codeYSTU = getCodeYSTU(testResponse.data);
+
+    const obj = {
+      codeYSTU: (codeYSTU || Date.now() % 11e8).toString(),
+      rdr_id: cardNumber,
+      pasp_n: passportNumber,
+    };
+    // fix url encoding by `convert_to_cp1251`
+    const postData = convert_to_cp1251(new URLSearchParams(obj).toString());
+
+    const webResponse = await this.fetch('auth_p1.php', {
+      authString,
+      method: 'POST',
+      postData,
+      useReauth: false,
+    });
+
+    // * Check content on `auth_p1.php`
+    if (webResponse.data.toLowerCase().includes('<a href="auth_p.php"')) {
+      delete this.cookies[authString];
+      throw new Error('Wrong login:password #1');
+    }
+
+    if (webResponse.data.toLowerCase().includes('<div id="login-form">')) {
+      delete this.cookies[authString];
+      throw new Error('Wrong login:password #2');
+    }
+
+    if (webResponse.request.path?.includes('auth.php')) {
+      return false;
+    }
+
+    return webResponse.data as string;
   }
 }

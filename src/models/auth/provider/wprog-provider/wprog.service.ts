@@ -13,6 +13,18 @@ export class WprogService {
       throw new Error('Failed auth');
     }
 
-    return cherrioParser.geUserInfo(lkstudResponse);
+    return cherrioParser.getUserInfo(lkstudResponse);
+  }
+
+  public async restore(cardNumber: string, passportNumber: string) {
+    const webResponse = await this.provider.startRestore(
+      cardNumber,
+      passportNumber,
+    );
+    if (!webResponse) {
+      throw new Error('Failed auth');
+    }
+
+    return cherrioParser.getRestoreData(webResponse);
   }
 }

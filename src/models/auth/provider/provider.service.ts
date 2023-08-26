@@ -21,4 +21,12 @@ export class ProviderService {
 
     throw new Error('Wrong provider');
   }
+
+  public async restore(cardNumber: string, passportNumber: string) {
+    if (xEnv.WPROG_URL) {
+      return this.wprogService.restore(cardNumber, passportNumber);
+    }
+
+    throw new Error('Wrong provider');
+  }
 }
