@@ -1,7 +1,8 @@
-import { plainToInstance } from 'class-transformer';
+import { Type, plainToInstance } from 'class-transformer';
 import { UserEntity } from '../entity/user.entity';
 
 export class AuthUserResponseDto {
+  @Type(() => UserEntity)
   public readonly user: UserEntity;
 
   constructor(input?: Partial<AuthUserResponseDto>) {
