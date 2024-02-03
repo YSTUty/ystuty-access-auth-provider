@@ -8,7 +8,7 @@ import { FormData } from 'formdata-node';
 import { FormDataEncoder } from 'form-data-encoder';
 
 import * as xEnv from '@my-environment';
-import { convert_to_cp1251, md5 } from '@my-common';
+import { convert_to_cp1251, delay, md5 } from '@my-common';
 
 import { getCodeYSTU } from './cherrio.parser';
 
@@ -43,6 +43,8 @@ export class WprogProvider {
 
       return response;
     });
+
+    this.garbageCollectorLoop().then();
   }
 
   private async updateCookies(authString: string, setCookie: string[]) {
@@ -56,6 +58,9 @@ export class WprogProvider {
       return { ...prev, [name]: value };
     }, {});
 
+    if (Object.keys(this.cookies).length > 500) {
+      await this.garbageCollector();
+    }
     if (!this.cookies[authString]) {
       this.cookies[authString] = {};
     }
@@ -304,5 +309,36 @@ export class WprogProvider {
     }
 
     return webResponse.data as string;
+  }
+
+  protected async garbageCollectorLoop() {
+    const loop = async (first = false) => {
+      if (!first) {
+        await delay(10 * 60 * 1e3);
+      }
+      await this.garbageCollector();
+      setImmediate(loop);
+    };
+    await loop(true);
+  }
+
+  protected async garbageCollector() {
+    try {
+      const keys = Object.keys(this.cookies);
+      let toRemove = keys.length * 0.33;
+      let removed: string[] = [];
+      for (const authString of keys) {
+        if (--toRemove <= 0) {
+          break;
+        }
+        removed.push(authString);
+        delete this.cookies[authString];
+      }
+      if (removed.length > 0) {
+        this.logger.debug(`Removed [${removed.length}] cookies`);
+      }
+    } catch (err) {
+      this.logger.error(err);
+    }
   }
 }
