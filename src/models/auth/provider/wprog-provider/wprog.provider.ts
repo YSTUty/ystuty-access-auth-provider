@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import * as Iconv from 'iconv-lite';
+import * as _ from 'lodash';
 import { Readable } from 'stream';
 import { FormData } from 'formdata-node';
 import { FormDataEncoder } from 'form-data-encoder';
@@ -19,6 +20,7 @@ export class WprogProvider {
   private readonly logger = new Logger(WprogProvider.name);
 
   private cookies: Record<string, Record<string, any>> = {};
+  private cookiesByLogin: Record<string, Record<string, any>> = {};
 
   constructor(private readonly httpService: HttpService) {
     httpService.axiosRef.defaults.baseURL = xEnv.WPROG_URL;
@@ -74,7 +76,7 @@ export class WprogProvider {
     headers?: Record<string, any>,
     setCookie?: string[],
   ) {
-    let cookies = this.cookies[authString];
+    let cookies = this.cookies[authString] || this.cookiesByLogin[authString];
     if (setCookie?.length > 0) {
       cookies = setCookie.reduce((prev, str) => {
         const [name, data] = str.split('=');
@@ -123,6 +125,7 @@ export class WprogProvider {
     url: string,
     options: {
       authString?: string;
+      userLogin?: string;
       method?: Method;
       postData?: any;
       axiosConfig?: AxiosRequestConfig<any>;
@@ -132,6 +135,7 @@ export class WprogProvider {
   ) {
     let {
       authString = 'ANY',
+      userLogin = null,
       method = 'GET',
       postData = {},
       axiosConfig = {},
@@ -159,7 +163,7 @@ export class WprogProvider {
       }
     }
 
-    this.tryInjectCookeis(authString, axiosConfig.headers);
+    this.tryInjectCookeis(userLogin || authString, axiosConfig.headers);
 
     (axiosConfig as any).authString = authString;
     axiosConfig.beforeRedirect = (opts, responseDetails) => {
@@ -199,6 +203,10 @@ export class WprogProvider {
 
         // TODO: reAuth
         delete this.cookies[authString];
+        userLogin ??= authString.split(':')[0];
+        if (userLogin in this.cookiesByLogin) {
+          delete this.cookiesByLogin[userLogin];
+        }
 
         throw new Error('Need auth');
       }
@@ -261,6 +269,9 @@ export class WprogProvider {
       return false;
     }
 
+    // Save last good cookie by login
+    this.cookiesByLogin[login] = _.cloneDeep(this.cookies[authString]);
+
     return lkstudResponse.data as string;
   }
 
@@ -302,6 +313,35 @@ export class WprogProvider {
     if (webResponse.data.toLowerCase().includes('<div id="login-form">')) {
       delete this.cookies[authString];
       throw new Error('Wrong login:password #2');
+    }
+
+    if (webResponse.request.path?.includes('auth.php')) {
+      return false;
+    }
+
+    return webResponse.data as string;
+  }
+
+  public async getStudInfo(login: string, type: 'lkorder' | 'lkstud_oc') {
+    if (login.length < 2) {
+      return false;
+    }
+
+    const webResponse = await this.fetch(`lk/${type}.php`, {
+      userLogin: login,
+      method: 'GET',
+      useReauth: false,
+    });
+
+    // * Check content on `auth_p1.php`
+    if (webResponse.data.toLowerCase().includes('<a href="auth_p.php"')) {
+      delete this.cookiesByLogin[login];
+      throw new Error('Wrong session #1');
+    }
+
+    if (webResponse.data.toLowerCase().includes('<div id="login-form">')) {
+      delete this.cookiesByLogin[login];
+      throw new Error('Wrong session #2');
     }
 
     if (webResponse.request.path?.includes('auth.php')) {
