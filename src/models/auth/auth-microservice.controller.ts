@@ -14,11 +14,11 @@ import { PayloadAuthRestoreDto } from './dto/payload-auth-restore.dto';
 
 @Controller()
 @UseFilters(HttpExceptionFilter)
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthMicroserviceController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern({ method: 'validate' }, Transport.TCP)
-  @UseInterceptors(ClassSerializerInterceptor)
   async validate(@Payload() payload: PayloadAuthValidateUserDto) {
     const user = await this.authService.validateUser(
       payload.username,
@@ -33,7 +33,6 @@ export class AuthMicroserviceController {
   }
 
   @MessagePattern({ method: 'restore' }, Transport.TCP)
-  @UseInterceptors(ClassSerializerInterceptor)
   async restore(@Payload() payload: PayloadAuthRestoreDto) {
     const response = await this.authService.restoreAuth(
       payload.cardNumber,
