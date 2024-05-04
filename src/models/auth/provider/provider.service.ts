@@ -29,4 +29,20 @@ export class ProviderService {
 
     throw new Error('Wrong provider');
   }
+
+  public async getMarks(login: string) {
+    if (xEnv.WPROG_URL) {
+      return this.wprogService.getStudInfo(login, 'lkstud_oc');
+    }
+
+    throw new Error('Wrong provider');
+  }
+
+  public async getOrders(login: string) {
+    if (xEnv.WPROG_URL) {
+      return this.wprogService.getStudInfo(login, 'lkorder');
+    }
+
+    throw new Error('Wrong provider');
+  }
 }

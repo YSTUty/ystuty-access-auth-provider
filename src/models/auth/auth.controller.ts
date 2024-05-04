@@ -7,6 +7,8 @@ import {
   UseGuards,
   UseInterceptors,
   BadRequestException,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { ReqAuth } from '@my-common';
 
@@ -34,6 +36,26 @@ export class AuthController {
       body.cardNumber,
       body.passportNumber,
     );
+    if (!response) {
+      throw new BadRequestException();
+    }
+    return response;
+  }
+
+  @Get('marks')
+  async getMarks(@Query('login') login: string) {
+    if (!login) return null;
+    const response = await this.authService.getMarks(login);
+    if (!response) {
+      throw new BadRequestException();
+    }
+    return response;
+  }
+
+  @Get('orders')
+  async getOrders(@Query('login') login: string) {
+    if (!login) return null;
+    const response = await this.authService.getOrders(login);
     if (!response) {
       throw new BadRequestException();
     }

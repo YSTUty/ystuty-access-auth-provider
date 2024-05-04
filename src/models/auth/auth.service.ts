@@ -55,6 +55,34 @@ export class AuthService {
     return null;
   }
 
+  public async getMarks(login: string) {
+    try {
+      const response = await this.providerService.getMarks(login);
+
+      return response;
+    } catch (err) {
+      if ((err as Error).message.startsWith('Wrong session')) {
+        throw new UnauthorizedException('Need reauthorize');
+      }
+      this.logger.error(err);
+    }
+    return null;
+  }
+
+  public async getOrders(login: string) {
+    try {
+      const response = await this.providerService.getOrders(login);
+
+      return response;
+    } catch (err) {
+      if ((err as Error).message.startsWith('Wrong session')) {
+        throw new UnauthorizedException('Need reauthorize');
+      }
+      this.logger.error(err);
+    }
+    return null;
+  }
+
   public async authUser(user: UserEntity) {
     // ? return access token
     return new AuthUserResponseDto({ user });
