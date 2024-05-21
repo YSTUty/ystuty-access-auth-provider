@@ -26,30 +26,32 @@ export const getUserInfo = (html: string) => {
   let ticketId: string = null;
 
   const $infoTable = $('#parent_popup_click2 > div > table > tbody');
-  if ($infoTable) {
+  if ($infoTable.length > 0) {
     const infoArr = ($infoTable as any).parsetable(
       false,
       true,
       true,
     ) as string[][];
 
-    const birthdayIdx = infoArr[0].findIndex((e) =>
-      e.startsWith('Дата рождения'),
-    );
-    if (birthdayIdx !== -1) {
-      birthday = infoArr[1][birthdayIdx];
-    }
+    if (infoArr.length > 0) {
+      const birthdayIdx = infoArr[0].findIndex((e) =>
+        e.startsWith('Дата рождения'),
+      );
+      if (birthdayIdx !== -1) {
+        birthday = infoArr[1][birthdayIdx];
+      }
 
-    const emailsIdx = infoArr[0].findIndex((e) => e.startsWith('E-mail'));
-    if (emailsIdx !== -1) {
-      emails = infoArr[1][emailsIdx].split(' ').map((e) => e.trim());
-    }
+      const emailsIdx = infoArr[0].findIndex((e) => e.startsWith('E-mail'));
+      if (emailsIdx !== -1) {
+        emails = infoArr[1][emailsIdx].split(' ').map((e) => e.trim());
+      }
 
-    const ticketIdIndex = infoArr[0].findIndex(
-      (e) => e.startsWith('Читательский билет'), // `Читательский билет №:login:`
-    );
-    if (ticketIdIndex !== -1) {
-      ticketId = infoArr[1][ticketIdIndex].split(' ').at(0);
+      const ticketIdIndex = infoArr[0].findIndex(
+        (e) => e.startsWith('Читательский билет'), // `Читательский билет №:login:`
+      );
+      if (ticketIdIndex !== -1) {
+        ticketId = infoArr[1][ticketIdIndex].split(' ').at(0);
+      }
     }
   }
 
