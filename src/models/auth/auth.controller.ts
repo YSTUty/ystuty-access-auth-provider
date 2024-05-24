@@ -7,8 +7,12 @@ import {
   UseGuards,
   UseInterceptors,
   BadRequestException,
+  Req,
+  InternalServerErrorException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ReqAuth } from '@my-common';
+import * as xEnv from '@my-environment';
 
 import { LocalAuthGuard } from './guards';
 import { AuthService } from './auth.service';
@@ -22,8 +26,13 @@ export class AuthController {
   @Post('signin')
   @UseGuards(/* CaptchaGuard, */ LocalAuthGuard)
   @HttpCode(200)
-  async postSignin(@ReqAuth() user) {
-    // TODO: check payload.serviceToken
+  async postSignin(@ReqAuth() user, @Req() req: Request) {
+    if (
+      xEnv.MY_SERVICE_TOKEN &&
+      xEnv.MY_SERVICE_TOKEN !== req.body.serviceToken
+    ) {
+      throw new InternalServerErrorException('Bad service token');
+    }
 
     const response = await this.authService.authUser(user);
     return response;
@@ -32,7 +41,9 @@ export class AuthController {
   @Post('restore')
   @HttpCode(200)
   async postRestore(@Body() body: RequestAuthRestoreDto) {
-    // TODO: check body.serviceToken
+    if (xEnv.MY_SERVICE_TOKEN && xEnv.MY_SERVICE_TOKEN !== body.serviceToken) {
+      throw new InternalServerErrorException('Bad service token');
+    }
 
     const response = await this.authService.restoreAuth(
       body.cardNumber,

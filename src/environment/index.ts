@@ -26,8 +26,9 @@ export const SERVER_URL: string =
 export const SERVER_MS_PORT: number = +process.env.SERVER_MS_PORT || 3000;
 // ms_auth_provider
 export const SERVER_MS_HOST: string = process.env.SERVER_MS_HOST || '0.0.0.0';
+export const MY_SERVICE_TOKEN: string = process.env.MY_SERVICE_TOKEN;
 
-// * oAuth server
+// * Microservice General service
 export const MS_S_GENERAL_SERVER_PORT: number =
   +process.env.MS_S_GENERAL_SERVER_PORT ?? 3000;
 export const MS_S_GENERAL_SERVER_HOST: string =

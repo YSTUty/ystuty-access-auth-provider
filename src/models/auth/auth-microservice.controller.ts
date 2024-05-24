@@ -4,9 +4,11 @@ import {
   Controller,
   UseInterceptors,
   UseFilters,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
 import { HttpAndRpcExceptionFilter } from '@my-common';
+import * as xEnv from '@my-environment';
 
 import { AuthService } from './auth.service';
 import { PayloadAuthValidateUserDto } from './dto/payload-auth-validate.dto';
@@ -20,7 +22,12 @@ export class AuthMicroserviceController {
 
   @MessagePattern({ method: 'validate' }, Transport.TCP)
   async validate(@Payload() payload: PayloadAuthValidateUserDto) {
-    // TODO: check payload.serviceToken
+    if (
+      xEnv.MY_SERVICE_TOKEN &&
+      xEnv.MY_SERVICE_TOKEN !== payload.serviceToken
+    ) {
+      throw new InternalServerErrorException('Bad service token');
+    }
 
     const user = await this.authService.validateUser(
       payload.login,
@@ -36,6 +43,13 @@ export class AuthMicroserviceController {
 
   @MessagePattern({ method: 'restore' }, Transport.TCP)
   async restore(@Payload() payload: PayloadAuthRestoreDto) {
+    if (
+      xEnv.MY_SERVICE_TOKEN &&
+      xEnv.MY_SERVICE_TOKEN !== payload.serviceToken
+    ) {
+      throw new InternalServerErrorException('Bad service token');
+    }
+
     const response = await this.authService.restoreAuth(
       payload.cardNumber,
       payload.passportNumber,
