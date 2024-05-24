@@ -25,6 +25,8 @@ export class AuthController {
   @UseGuards(/* CaptchaGuard, */ LocalAuthGuard)
   @HttpCode(200)
   async postSignin(@ReqAuth() user) {
+    // TODO: check payload.serviceToken
+
     const response = await this.authService.authUser(user);
     return response;
   }
@@ -32,6 +34,8 @@ export class AuthController {
   @Post('restore')
   @HttpCode(200)
   async postRestore(@Body() body: RequestAuthRestoreDto) {
+    // TODO: check body.serviceToken
+
     const response = await this.authService.restoreAuth(
       body.cardNumber,
       body.passportNumber,

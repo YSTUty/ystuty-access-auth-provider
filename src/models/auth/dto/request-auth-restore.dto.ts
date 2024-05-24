@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsNumberString, IsString, Length } from 'class-validator';
+import { IsNumberString, IsOptional, IsString, Length } from 'class-validator';
 
 @Exclude()
 export class RequestAuthRestoreDto {
@@ -14,4 +14,9 @@ export class RequestAuthRestoreDto {
   @IsNumberString()
   @Length(6)
   public readonly passportNumber: string;
+
+  @Expose()
+  @IsString()
+  @IsOptional()
+  public readonly serviceToken: string;
 }

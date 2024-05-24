@@ -55,6 +55,7 @@ export class AuthService {
     return null;
   }
 
+  /** @deprecated // TODO: REMOVE IT */
   public async getMarks(login: string) {
     try {
       const response = await this.providerService.getMarks(login);
@@ -69,6 +70,7 @@ export class AuthService {
     return null;
   }
 
+  /** @deprecated // TODO: REMOVE IT */
   public async getOrders(login: string) {
     try {
       const response = await this.providerService.getOrders(login);

@@ -27,4 +27,12 @@ export const SERVER_MS_PORT: number = +process.env.SERVER_MS_PORT || 3000;
 // ms_auth_provider
 export const SERVER_MS_HOST: string = process.env.SERVER_MS_HOST || '0.0.0.0';
 
+// * oAuth server
+export const MS_S_GENERAL_SERVER_PORT: number =
+  +process.env.MS_S_GENERAL_SERVER_PORT ?? 3000;
+export const MS_S_GENERAL_SERVER_HOST: string =
+  process.env.MS_S_GENERAL_SERVER_HOST ?? 'ms_s_general_server';
+export const S_GENERAL_SERVICE_TOKEN: string =
+  process.env.S_GENERAL_SERVICE_TOKEN;
+
 export const WPROG_URL: string = process.env.WPROG_URL;

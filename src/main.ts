@@ -7,7 +7,7 @@ import * as compression from 'compression';
 import helmet from 'helmet';
 
 import * as xEnv from '@my-environment';
-import { HttpExceptionFilter, ValidationHttpPipe } from '@my-common';
+import { HttpAndRpcExceptionFilter, ValidationHttpPipe } from '@my-common';
 
 import { AppModule } from './models/app/app.module';
 
@@ -30,7 +30,7 @@ async function bootstrap() {
   app.enableCors({});
 
   app.useGlobalPipes(new ValidationHttpPipe({ transform: true }));
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpAndRpcExceptionFilter());
 
   app.use(compression());
   app.use(

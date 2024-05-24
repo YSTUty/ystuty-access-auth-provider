@@ -1,16 +1,14 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsOptional, IsString, Length } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 @Exclude()
-export class PayloadAuthValidateUserDto {
+export class PayloadGeneralUserValidateDto {
   @Expose()
   @IsString()
-  @Length(1, 40)
   public readonly login: string;
 
   @Expose()
   @IsString()
-  @Length(1, 255)
   public readonly password: string;
 
   @Expose()
