@@ -30,9 +30,9 @@ export class ProviderService {
   }
 
   public async restore(cardNumber: string, passportNumber: string) {
-    // if (xEnv.MS_S_GENERAL_SERVER_HOST) {
-    //   return this.ystutyService.restore(cardNumber, passportNumber);
-    // }
+    if (xEnv.MS_S_GENERAL_SERVER_HOST) {
+      return this.ystutyService.restore(cardNumber, passportNumber);
+    }
 
     if (xEnv.WPROG_URL) {
       return this.wprogService.restore(cardNumber, passportNumber);

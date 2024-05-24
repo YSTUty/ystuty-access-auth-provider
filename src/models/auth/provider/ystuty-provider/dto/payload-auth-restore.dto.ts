@@ -1,13 +1,18 @@
 import { Exclude, Expose } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString, Length } from 'class-validator';
 
 @Exclude()
-export class RequestAuthRestoreDto {
+export class PayloadAuthRestoreDto {
   /** @example Ц-22011 */
   @Expose()
+  @IsString()
+  @Length(7)
   public readonly cardNumber: string;
 
+  /** @example 144919 */
   @Expose()
+  @IsNumberString()
+  @Length(6)
   public readonly passportNumber: string;
 
   @Expose()

@@ -13,4 +13,16 @@ export class YstutyService {
 
     return response;
   }
+
+  public async restore(cardNumber: string, passportNumber: string) {
+    const response = await this.provider.startRestore(
+      cardNumber,
+      passportNumber,
+    );
+    if (!response) {
+      throw new Error('Failed restore');
+    }
+
+    return response;
+  }
 }
