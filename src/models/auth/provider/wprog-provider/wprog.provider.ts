@@ -322,35 +322,6 @@ export class WprogProvider {
     return webResponse.data as string;
   }
 
-  public async getStudInfo(login: string, type: 'lkorder' | 'lkstud_oc') {
-    if (login.length < 2) {
-      return false;
-    }
-
-    const webResponse = await this.fetch(`lk/${type}.php`, {
-      userLogin: login,
-      method: 'GET',
-      useReauth: false,
-    });
-
-    // * Check content on `auth_p1.php`
-    if (webResponse.data.toLowerCase().includes('<a href="auth_p.php"')) {
-      delete this.cookiesByLogin[login];
-      throw new Error('Wrong session #1');
-    }
-
-    if (webResponse.data.toLowerCase().includes('<div id="login-form">')) {
-      delete this.cookiesByLogin[login];
-      throw new Error('Wrong session #2');
-    }
-
-    if (webResponse.request.path?.includes('auth.php')) {
-      return false;
-    }
-
-    return webResponse.data as string;
-  }
-
   protected async garbageCollectorLoop() {
     const loop = async (first = false) => {
       if (!first) {

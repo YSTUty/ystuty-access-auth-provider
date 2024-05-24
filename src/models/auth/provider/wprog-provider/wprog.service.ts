@@ -27,16 +27,4 @@ export class WprogService {
 
     return cherrioParser.getRestoreData(webResponse);
   }
-
-  public async getStudInfo(login: string, type: 'lkorder' | 'lkstud_oc') {
-    const webResponse = await this.provider.getStudInfo(login, type);
-    if (!webResponse) {
-      throw new Error('Failed auth');
-    }
-
-    if (type == 'lkstud_oc') {
-      return cherrioParser.getMarks(webResponse);
-    }
-    return cherrioParser.getOrders(webResponse);
-  }
 }
