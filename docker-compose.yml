@@ -14,6 +14,7 @@ services:
       - ${EXTERNAL_MS_PORT:-7481}:${SERVER_MS_PORT:-3000}
     networks:
       - ystuty-access-network
+      - ystuty_network
     volumes:
       - ./.env:/home/node/app/.env
     healthcheck:
@@ -30,3 +31,6 @@ networks:
   ystuty-access-network:
     name: ystuty_access
     driver: bridge
+  ystuty_network:
+    external:
+      name: ystuty_network
