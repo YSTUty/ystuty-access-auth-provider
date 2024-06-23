@@ -22,7 +22,7 @@ export class ResponseGeneralUser {
   public ticketId: string;
 
   @Expose()
-  public avatar_url: string;
+  public photo_url: string;
 
   @Expose()
   public login: string;

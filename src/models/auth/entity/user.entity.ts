@@ -33,7 +33,7 @@ export class UserEntity {
   public ticketId: string;
 
   @Expose()
-  public avatarUrl: string;
+  public photoUrl: string;
 
   constructor(input?: Omit<Partial<UserEntity>, 'toResponseObject'>) {
     if (input) {

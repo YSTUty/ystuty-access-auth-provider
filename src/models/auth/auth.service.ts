@@ -25,7 +25,7 @@ export class AuthService {
         birthday: response.birthday,
         emails: response.emails,
         ticketId: response.ticketId,
-        avatarUrl: response.avatar_url,
+        photoUrl: response.photo_url,
       });
     } catch (err) {
       if (err.message === 'Wrong login:password') {

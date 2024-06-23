@@ -17,7 +17,7 @@ export const getUserInfo = (html: string) => {
   } = matchResult?.groups || {};
 
   let [first_name, last_name, middle_name] = fullname?.split(' ');
-  let avatar_url = $(
+  let photo_url = $(
     'div.RightContentColumn > div > div > table:nth-child(4) > tbody > tr > td:nth-child(1) > img',
   ).attr('src');
 
@@ -62,7 +62,7 @@ export const getUserInfo = (html: string) => {
     birthday,
     emails,
     ticketId,
-    avatar_url,
+    photo_url,
     login,
     group,
   };
