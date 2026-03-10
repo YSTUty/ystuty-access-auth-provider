@@ -1,36 +1,34 @@
-version: '3.8'
-
 services:
   app_srv:
     hostname: ystuty-access-auth-provider
     build:
       context: .
-      target: production
+      target: build
       dockerfile: ./Dockerfile
-    command: yarn start:prod
+    command: yarn start:dev
     ports:
       # 8080 is the default port
       - ${EXTERNAL_PORT:-7471}:${SERVER_PORT:-8080}
       - ${EXTERNAL_MS_PORT:-7481}:${SERVER_MS_PORT:-3000}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     networks:
+      - ystuty-network
       - ystuty-access-network
-      - ystuty_network
     volumes:
       - ./.env:/home/node/app/.env
     healthcheck:
-      test: curl --fail http://localhost:${SERVER_PORT:-8080}/api/app/uptime || exit 1
+      test: curl --fail http://localhost:${SERVER_PORT:-8080}${HEALTH_PATH:-/api/app/uptime} || exit 1
       interval: 2m
       retries: 3
       start_period: 40s
       timeout: 10s
     restart: unless-stopped
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
+    stdin_open: true
+    tty: true
 
 networks:
+  ystuty-network:
+    external: true
   ystuty-access-network:
-    name: ystuty_access
-    driver: bridge
-  ystuty_network:
-    external:
-      name: ystuty_network
+    external: true
