@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { Logger, VersioningType } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -12,6 +12,11 @@ import { HttpAndRpcExceptionFilter, ValidationHttpPipe } from '@my-common';
 import { AppModule } from './models/app/app.module';
 
 async function bootstrap() {
+  Logger.log(
+    `🥙 Application (${process.env.npm_package_name}@v${process.env.npm_package_version})`,
+    'NestJS',
+  );
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
@@ -21,6 +26,9 @@ async function bootstrap() {
     },
   });
 
+  // app.set('query parser', 'extended');
+  // app.set('trust proxy', true); // ?
+
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
@@ -29,8 +37,22 @@ async function bootstrap() {
   app.enableShutdownHooks();
   app.enableCors({});
 
-  app.useGlobalPipes(new ValidationHttpPipe({ transform: true }));
-  app.useGlobalFilters(new HttpAndRpcExceptionFilter());
+  // app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+
+  app.useGlobalPipes(
+    new ValidationHttpPipe({
+      transform: true,
+      // whitelist: true,
+      // forbidNonWhitelisted: false,
+      // transformOptions: {
+      //   // groups: [FOR_SYS],
+      //   enableImplicitConversion: true,
+      //   // enableCircularCheck: true,
+      // },
+    }),
+  );
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new HttpAndRpcExceptionFilter(httpAdapterHost));
 
   app.use(compression());
   app.use(
@@ -40,7 +62,6 @@ async function bootstrap() {
       contentSecurityPolicy: false,
     }),
   );
-
   app.use(requestIp.mw({ attributeName: 'ip' }));
 
   await app.startAllMicroservices();
@@ -61,6 +82,18 @@ async function bootstrap() {
     'Bootstrap',
   );
 }
+
+const logger = new Logger('GlobalErrorHandler');
+process.on('uncaughtException', (error: Error, origin: string) => {
+  logger.error(`Uncaught Exception: ${error.message}`, error.stack);
+});
+process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  logger.error(
+    `Unhandled Rejection at: ${promise}, reason: ${reason?.message || reason}`,
+    reason?.stack,
+  );
+});
+
 bootstrap().catch((e) => {
   Logger.warn(`❌  Error starting server, ${e}`, 'Bootstrap');
   throw e;
