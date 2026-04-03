@@ -35,7 +35,7 @@ export class AuthMicroserviceController {
     );
 
     if (!user) {
-      throw new BadRequestException('Invalid login or password');
+      throw new BadRequestException('Auth Server error');
     }
     const response = await this.authService.authUser(user);
     return response;

@@ -31,10 +31,11 @@ export class YstutyProvider {
       return userInfo;
     } catch (err) {
       if (err instanceof HttpRpcException) {
-        console.log(err, err.getStatus());
-        if (err.getStatus() === 404) {
-          // ...
-        }
+        throw new Error('Wrong login:password');
+        // console.log(err, err.getStatus());
+        // if (err.getStatus() === 404) {
+        //   // ...
+        // }
       } else {
         console.log(err);
       }

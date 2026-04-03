@@ -28,7 +28,11 @@ export class AuthService {
         photoUrl: response.photo_url,
       });
     } catch (err) {
-      if (err.message === 'Wrong login:password') {
+      if (
+        err instanceof Error &&
+        (err.message === 'Wrong login:password' ||
+          err.message === 'Failed auth')
+      ) {
         throw new UnauthorizedException('Wrong login or password');
       }
       this.logger.error(err);
